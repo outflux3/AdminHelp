@@ -238,7 +238,6 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		if(isset($data['helpTplIndex'])) $field->value = $data['helpTplIndex'];
 
 		$wrapper->add($field);
-		// ---------------------------------------------------------------------------
 
 		// Select the help template --------------------------------------------------
 		$field = wire('modules')->get('InputfieldSelect');
@@ -256,7 +255,6 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		if(isset($data['helpTpl'])) $field->value = $data['helpTpl'];
 
 		$wrapper->add($field);
-		// ---------------------------------------------------------------------------
 
 		// make a field to set the root of the help pages  ---------------------------
 		$field = wire('modules')->get('InputfieldPageListSelect');
@@ -271,7 +269,6 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		}
 
 		$wrapper->add($field);
-		// ---------------------------------------------------------------------------
 
 		// make a checkbox to optionally create the help templates, fields and pages  ---------------------------
 		$field = wire('modules')->get('InputfieldCheckbox');
@@ -283,11 +280,8 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		$field->value = (isset($data['setupYN'])) ? $data['setupYN'] : 1;
         $field->checked = ($field->value == 1) ? 'checked' : '';
 
-        //$field->attr('value', 1);
-        //$field->attr('checked', '');
-
 		$wrapper->add($field);
-		// ---------------------------------------------------------------------------
+
 
 
 		return $wrapper;
