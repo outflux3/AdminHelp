@@ -22,6 +22,22 @@ At this point the 'Help' tab should show up for the relevant template (as specif
 To have a global help page, which renders all of the help docs in an accordion view, you can install the ProcessAdminHelp module, which will setup a page to view the help docs, under setup.
 
 
-## Example Help Tab
+## Help Setup Module (AdminHelp)
+
+This is how the setup module looks before setup is completed:
+![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_setup_new.jpg)
+
+If you use the automated setup, it will create the field, templates and pages, and will auto-set the module configuration:
+![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_setup_done.jpg)
+
+## Example Help Tab (when using AdminHelpTab)
 
 ![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_tab.jpg)
+
+## Admin Help page (ProcessAdminHelp)
+This shows all help docs in accordion; it is capable of displaying child pages also but this is not currently implemented in the module;
+
+![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_page_c.jpg)
+
+Accordion opened:
+![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_page_o.jpg)
