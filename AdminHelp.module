@@ -1,0 +1,296 @@
+<?php
+
+/**
+ * ProcessWire Page Docs Tab
+ *
+ * A little addon to display docs relevant to the page being edited.
+ *
+ * @copyright Copyright (c) 2015, Macrura/Outflux3
+ *
+ */
+
+class AdminHelp extends WireData implements Module, ConfigurableModule {
+
+	/**
+	 * Return information about this module (required)
+	 *
+	 * @return array
+	 *
+	 */
+	static public function getModuleInfo() {
+		return array(
+			'title'    => 'Admin Help Main',
+			'summary'  => 'Main module for managing admin help pages',
+			'version'  => 100,
+			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
+			'autoload' => true,
+			'icon'	   => 'life-ring',
+		);
+	}
+
+
+	//protected static $overrides = array();
+
+
+	/**
+	 * __construct() is the right place to init config vars before they'll get populated
+	 *
+	 */
+	public function __construct() {
+		$configData = $this->modules->getModuleConfigData($this);
+		$this->setupYN = $configData['setupYN'];
+	}
+
+	/**
+	 * init() is called when PW's API is ready
+	 *
+	 */
+	public function init() {
+
+	}
+
+	/**
+	 * ready() is called when both PW's API is ready and $page object is initialized (for autoload modules!)
+	 * Add the hook here to be able to skip it based on the template of the edited page.
+	 *
+	 */
+	public function ready() {
+		if($this->setupYN === 1) $this->setupStuff();
+	}
+
+
+	private function setupStuff() {
+
+		$data = $this->modules->getModuleConfigData($this);
+
+		// if there is no template select field, and the Fieldtype is installed, setup that field:
+		if(!$this->fields->get('template_select') && $this->modules->get("FieldtypeTemplates")) {
+			$field = new Field();
+			$field->type = $this->modules->get("FieldtypeTemplates");
+			$field->name = 'template_select';
+			$field->label = 'Select Template';
+			$field->description = 'Select the templates to show this help doc on.';
+			$field->save();
+		}
+
+		// if there is no help-index template, and the user hasn't set their own...
+		if(!$this->templates->get('help-index') && !$data['helpTplIndex']) {
+
+			//new fieldgroup
+			$fg = new Fieldgroup();
+			$fg->name = 'help-index';
+
+			// help-index only needs title:
+			$field = $this->fields->get('title');
+			$fg->add($field);
+
+			// Save FG
+			$fg->save();
+
+			//create a new template to use with this fieldgroup
+			$t = new Template();
+			$t->name ='help-index';
+			$t->fieldgroup = $fg; //add the fieldgroup
+			$t->noParents = -1; // set the index temlpate to only be used once.
+
+			//save new template with fields and settings now added
+			$t->save();
+
+			// tell the module to use this template as the index.
+			$data['helpTplIndex'] = $t->name;
+		}
+
+		// if there is no help-doc template, and the user hasn't set their own...
+		if(!$this->templates->get('help-doc') && !$data['helpTpl']) {
+
+			//new fieldgroup
+			$fg = new Fieldgroup();
+			$fg->name = 'help-doc';
+
+			$field = $this->fields->get('title');
+			$fg->add($field);
+
+			if($this->fields->get('body')) {
+				$field = $this->fields->get('body');
+				$fg->add($field);
+			} else {
+				$this->message($this->_("No body field was found, please add manually."));
+			}
+
+			if($this->fields->get('images')) {
+				$field = $this->fields->get('images');
+				$fg->add($field);
+			} else {
+				$this->message($this->_("No image field was found, please add manually."));
+			}
+
+			if($this->fields->get('template_select')) {
+				$field = $this->fields->get('template_select');
+				$fg->add($field);
+			}
+
+			$fg->save();
+
+			//create a new template to use with this fieldgroup
+			$t = new Template();
+			$t->name ='help-doc';
+			$t->fieldgroup = $fg; //add the fieldgroup
+
+			// Set the parent allowed template of the help page to the help-index
+			$par = wire('templates')->get('help-index');
+			$t->parentTemplates = array($par->id); //needs to be added as array of template IDs
+			$t->noChildren = 1; // keep this only 1 level deep for now...
+
+			$t->save();
+
+			// tell the module to use this template for the help doc.
+			$data['helpTpl'] = $t->name;
+
+		}
+
+		// once the 2 templates above are added, set the parent template to only allow the child:
+		if(wire('templates')->get('help-index') && wire('templates')->get('help-doc')) {
+			$hindextpl 	= wire('templates')->get('help-index');
+			$hdoctpl 	= wire('templates')->get('help-doc');
+
+			$hindextpl->childTemplates = array($hdoctpl->id);
+			$hindextpl->save();//save the template
+
+			if(!$data['helpTplIndex']) 	$data['helpTplIndex'] 	= $hindextpl->name;
+			if(!$data['helpTpl']) 		$data['helpTpl'] 		= $hdoctpl->name;
+
+			//$this->message($this->_("Config Data: " . print_r($data, true) ) );
+
+			if(!$data['helpRoot']) {
+
+				// Make new Help Docs Index page
+				$p = new Page();
+				$p->parent = '/';
+				$p->template = $hindextpl;
+				$p->title = 'Help Docs';
+				$p->name = 'help-docs';
+
+				//if name already exists [i.e. a child under this parent]; don't proceed
+				if($p->parent->child("name={$p->name}, include=all")->id) {
+					//if name already in use, we tell the user in an error message and halt proceedings
+					$this->error($this->_("There is already a Help Docs page."));
+					return false;
+				}
+
+				$p->addStatus(Page::statusHidden);
+				$p->save();
+				$this->message($this->_("Added Help Docs index page."));
+
+				$data['helpRoot'] = $p->id;
+
+				// add the child page
+				$pc = new Page();
+				$pc->parent = $p;
+				$pc->template = $hdoctpl;
+				$pc->title = 'Basic Page Help';
+				$pc->name = 'basic-page-help';
+				$pc->body = file_get_contents($this->config->paths->siteModules . __CLASS__ . DIRECTORY_SEPARATOR . 'example.html');
+
+				$tplBasic = $this->templates->get('basic-page');
+				$pc->template_select = $tplBasic;
+
+				$pc->save();
+				$this->message($this->_("Added Example Page."));
+
+			}
+		}
+
+		// Unset the setup checkbox:
+		$data['setupYN'] = '';
+		// Save the new config data:
+		wire('modules')->saveModuleConfigData(__CLASS__, $data);
+
+	}
+
+
+	/**
+	 * Return an InputfieldsWrapper of Inputfields used to configure the class
+	 *
+	 * @param array $data Array of config values indexed by field name
+	 * @return InputfieldsWrapper
+	 *
+	 */
+	public static function getModuleConfigInputfields(array $data) {
+
+		// you can use this other method to build the form which is not staic
+		//return wire('modules')->get(__CLASS__)->getForm();
+
+		$wrapper = new InputfieldWrapper();
+
+		// Select the help index template --------------------------------------------------
+		$field = wire('modules')->get('InputfieldSelect');
+		$field->attr('name+id', 'helpTplIndex');
+		$field->label = __('Help index template', __FILE__);
+		$field->description = __('Please set the template used for the help index', __FILE__);
+		$field->attr('title', __('Help Index Template', __FILE__));
+
+		// populate with all available templates
+		foreach(wire('templates') as $t) {
+			// filter out system templates
+			if(!($t->flags & Template::flagSystem)) $field->addOption($t->name);
+		}
+
+		if(isset($data['helpTplIndex'])) $field->value = $data['helpTplIndex'];
+
+		$wrapper->add($field);
+		// ---------------------------------------------------------------------------
+
+		// Select the help template --------------------------------------------------
+		$field = wire('modules')->get('InputfieldSelect');
+		$field->attr('name+id', 'helpTpl');
+		$field->label = __('Help pages template', __FILE__);
+		$field->description = __('Please set the template to be used for help pages. Recommended help, and help-index', __FILE__);
+		$field->attr('title', __('Help Page Template', __FILE__));
+
+		// populate with all available templates
+		foreach(wire('templates') as $t) {
+			// filter out system templates
+			if(!($t->flags & Template::flagSystem)) $field->addOption($t->name);
+		}
+
+		if(isset($data['helpTpl'])) $field->value = $data['helpTpl'];
+
+		$wrapper->add($field);
+		// ---------------------------------------------------------------------------
+
+		// make a field to set the root of the help pages  ---------------------------
+		$field = wire('modules')->get('InputfieldPageListSelect');
+		$field->attr('name+id', 'helpRoot');
+		$field->label = __('Help Pages Root', __FILE__);
+		$field->description = __('Select the root your help pages. (Allows the module to know where to create new help docs.', __FILE__);
+		$field->attr('title', __('Help root', __FILE__));
+
+		if(isset($data['helpRoot'])) {
+			$savedPageID = (int) $data['helpRoot'];// name of our input above
+			$field->value = $savedPageID;
+		}
+
+		$wrapper->add($field);
+		// ---------------------------------------------------------------------------
+
+		// make a checkbox to optionally create the help templates, fields and pages  ---------------------------
+		$field = wire('modules')->get('InputfieldCheckbox');
+		$field->attr('name', 'setupYN');
+		$field->label = __('Setup Fields, Templates &amp; Pages?', __FILE__);
+		$field->description = __('Select this and hit submit to setup the fields, templates and pages.', __FILE__);
+		$field->notes = __("Selecting this and submitting will initiate an automated process that will create the template_select field, help-index template, help-doc template, and if there is no help docs root specified, a Help Docs index page, and a sample Help Page for basic page. Use with caution as this has only had limited testing.");
+		$field->showIf = "helpTpl|helpTplIndex=''";
+		$field->value = (isset($data['setupYN'])) ? $data['setupYN'] : 1;
+        $field->checked = ($field->value == 1) ? 'checked' : '';
+
+        //$field->attr('value', 1);
+        //$field->attr('checked', '');
+
+		$wrapper->add($field);
+		// ---------------------------------------------------------------------------
+
+
+		return $wrapper;
+	}
+
+}

@@ -1,0 +1,165 @@
+<?php
+
+/**
+ * ProcessWire Admin Help Tab
+ *
+ * A little addon to display help docs relevant to the page being edited.
+ *
+ * @copyright Copyright (c) 2015, Macrura/Outflux3
+ *
+ */
+
+class AdminHelpTab extends WireData implements Module, ConfigurableModule {
+
+	/**
+	 * @var Page Page being edited
+	 *
+	 */
+	private $editedPage;
+	protected $docsRoot;
+
+	/**
+	 * Return information about this module (required)
+	 *
+	 * @return array
+	 *
+	 */
+	static public function getModuleInfo() {
+		return array(
+			'title'    => 'Admin Help Tab',
+			'summary'  => 'Adds a tab to the editor with related documentation.',
+			'version'  => 100,
+			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
+			'autoload' => true,
+			'requires' => array('AdminHelp', 'FieldtypeTemplates')
+		);
+	}
+
+	/**
+	 * __construct() is the right place to init config vars before they'll get populated
+	 *
+	 */
+	public function __construct() {
+		$this->mainClass = 'AdminHelp';
+		$this->enabledTemplates = array();
+	}
+
+	/**
+	 * init() is called when PW's API is ready
+	 *
+	 */
+	public function init() {
+
+	}
+
+	/**
+	 * ready() is called when both PW's API is ready and $page object is initialized (for autoload modules!)
+	 * Add the hook here to be able to skip it based on the template of the edited page.
+	 *
+	 */
+	public function ready() {
+		// we're interested in page editor only
+		if(wire('page')->process != 'ProcessPageEdit') return;
+
+		// skip changing templates (only target the actual edit form)
+		$id = (int)$this->input->get('id');
+		if(!$id) return;
+
+		// wire('page') would be the page with ProcessPageEdit
+		// GET parameter id tells the page that's being edited
+		$this->editedPage = wire('pages')->get($id);
+
+		// don't even consider system templates
+		if($this->editedPage->template->flags & Template::flagSystem) return;
+
+		// hook only if
+		// 1) no templates have been chosen (=all enabled) OR
+		// 2) the template of the edited page has been chosen
+		if(count($this->enabledTemplates) == 0 or
+		   in_array($this->editedPage->template->name, $this->enabledTemplates)) {
+			$this->addHookAfter('ProcessPageEdit::buildForm', $this, 'hookBuildForm');
+		}
+	}
+
+	/**
+	 * Add References tab to page edit form
+	 *
+	 */
+	public function hookBuildForm(HookEvent $event) {
+		// get the InputFieldForm object from the event (return value of buildForm())
+		//$configData = $this->wire('modules')->getModuleConfigData($this);
+		$configData = $this->wire('modules')->getModuleConfigData($this->mainClass);
+		$savedPageID = (int) $configData['helpRoot'];
+		$form = $event->return;
+
+		// create the tab
+		$docTab = new InputfieldWrapper();
+		$docTab->attr('id', $this->className() . 'Help');
+		$docTab->attr('title', $this->_('Help'));
+		$field = $this->modules->get("InputfieldMarkup");
+
+		$docs = wire('pages')->find("has_parent=$savedPageID, template_select={$this->editedPage->template->id}");
+
+		if(count($docs)) {
+			//$body = '';
+			$docLink = wire('config')->urls->admin . 'page/edit/?id=';
+			$body = '<div id="docs">';
+			foreach($docs as $doc) {
+				$body .= "<div id='doc{$doc->id}' class='help-doc'>";
+				$body .= "<h1><i class='fa fa-file-text-o'></i> {$doc->title}";
+				$body .= " &nbsp;<span><a href='{$docLink}{$doc->id}' target='_blank' title='Edit'><i class='fa fa-pencil'></i></a></span></h1>";
+				$body .= $doc->body;
+
+				//$body .= '<div class="doc-edit">';
+				//$body .= "<a href='{$docLink}{$doc->id}' target='_blank'><i class='fa fa-pencil'></i> Edit: {$doc->title}</a></div>";
+				//$body .= '</div>';
+			}
+			$body .= '</div>';
+			$field->markupText = $body;
+		} else {
+			$docsAdd = wire('config')->urls->admin . 'page/add/?parent_id=' . $savedPageID;
+			$field->markupText = "<h2>No applicable help docs found</h2>";
+			$field->markupText .= "<br> <a href='$docsAdd'>";
+			$field->markupText .= '<button class="ui-button ui-widget ui-corner-all ui-state-default" name="button" value="Add New" type="button"><span class="ui-button-text"><i class="fa fa-plus-circle"></i> Add New Doc</span></button>';
+			$field->markupText .= '</a>';
+		}
+
+		// append the markup to the tab and the tab to the form
+		$docTab->append($field);
+		$form->prepend($docTab);
+
+		$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/' . $this->mainClass . '.css?v=' . time());
+
+	}
+
+
+	/**
+	 * Return an InputfieldsWrapper of Inputfields used to configure the class
+	 *
+	 * @param array $data Array of config values indexed by field name
+	 * @return InputfieldsWrapper
+	 *
+	 */
+	public static function getModuleConfigInputfields(array $data) {
+		$wrapper = new InputfieldWrapper();
+
+		$fieldEnabledTemplates = wire('modules')->get('InputfieldAsmSelect');
+		$fieldEnabledTemplates->attr('name+id', 'enabledTemplates');
+		$fieldEnabledTemplates->label = __('Enabled templates', __FILE__);
+		$fieldEnabledTemplates->description = __('"Help" tab will only be shown for chosen templates. If no template is chosen, "Help" tab will be shown for all templates.', __FILE__);
+		$fieldEnabledTemplates->attr('title', __('Enable template', __FILE__));
+		$fieldEnabledTemplates->setAsmSelectOption('sortable', false);
+
+		// populate with all available templates
+		foreach(wire('templates') as $t) {
+			// filter out system templates
+			if(!($t->flags & Template::flagSystem)) $fieldEnabledTemplates->addOption($t->name);
+		}
+		if(isset($data['enabledTemplates'])) $fieldEnabledTemplates->value = $data['enabledTemplates'];
+
+		$wrapper->add($fieldEnabledTemplates);
+
+		return $wrapper;
+	}
+
+}
