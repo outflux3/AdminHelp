@@ -1,9 +1,9 @@
 <?php
 
 /**
- * ProcessWire Page Docs Tab
+ * ProcessWire Admin Help Module
  *
- * A little addon to display docs relevant to the page being edited.
+ * Main module for setup
  *
  * @copyright Copyright (c) 2015, Macrura/Outflux3
  *
@@ -19,8 +19,8 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 	 */
 	static public function getModuleInfo() {
 		return array(
-			'title'    => 'Admin Help Main',
-			'summary'  => 'Main module for managing admin help pages',
+			'title'    => 'Admin Help Setup',
+			'summary'  => 'Main module for managing setup of admin help pages',
 			'version'  => 100,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
@@ -55,11 +55,11 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 	 *
 	 */
 	public function ready() {
-		if($this->setupYN === 1) $this->setupStuff();
+		if($this->setupYN === 1) $this->runSetup();
 	}
 
 
-	private function setupStuff() {
+	private function runSetup() {
 
 		$data = $this->modules->getModuleConfigData($this);
 
