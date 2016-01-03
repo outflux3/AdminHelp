@@ -28,10 +28,6 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		);
 	}
 
-
-	//protected static $overrides = array();
-
-
 	/**
 	 * __construct() is the right place to init config vars before they'll get populated
 	 *
@@ -281,7 +277,6 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
         $field->checked = ($field->value == 1) ? 'checked' : '';
 
 		$wrapper->add($field);
-
 
 
 		return $wrapper;

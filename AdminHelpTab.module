@@ -16,7 +16,6 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	 *
 	 */
 	private $editedPage;
-	protected $docsRoot;
 
 	/**
 	 * Return information about this module (required)
@@ -86,8 +85,8 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	 *
 	 */
 	public function hookBuildForm(HookEvent $event) {
+
 		// get the InputFieldForm object from the event (return value of buildForm())
-		//$configData = $this->wire('modules')->getModuleConfigData($this);
 		$configData = $this->wire('modules')->getModuleConfigData($this->mainClass);
 		$savedPageID = (int) $configData['helpRoot'];
 		$form = $event->return;
