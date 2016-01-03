@@ -24,4 +24,4 @@ To have a global help page, which renders all of the help docs in an accordion v
 
 ## Example Help Tab
 
-![Desc](https://raw.githubusercontent.com/outflux3/AdminDocsTab/master/images/admin_docs.jpg)
+![Desc](https://raw.githubusercontent.com/outflux3/AdminHelp/master/images/help_tab.jpg)
