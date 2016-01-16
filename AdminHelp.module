@@ -24,9 +24,16 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 			'version'  => 100,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
-			'icon'	   => 'life-ring',
+			'icon'	   => 'life-ring'
 		);
 	}
+
+	/**
+	 * Name of activity/error log files without extension (.txt)
+	 *
+	 */
+	const LOG_FILENAME_ACTIVITY = 'adminhelp_activity';
+
 
 	/**
 	 * __construct() is the right place to init config vars before they'll get populated
@@ -51,7 +58,9 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 	 *
 	 */
 	public function ready() {
-		if($this->setupYN === 1) $this->runSetup();
+		if($this->setupYN === 1) {
+			$this->runSetup();
+		}
 	}
 
 
@@ -67,6 +76,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 			$field->label = 'Select Template';
 			$field->description = 'Select the templates to show this help doc on.';
 			$field->save();
+			$this->log->save( self::LOG_FILENAME_ACTIVITY , 'template_select field created');
 		}
 
 		// if there is no help-index template, and the user hasn't set their own...
@@ -271,9 +281,14 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		$field->attr('name', 'setupYN');
 		$field->label = __('Setup Fields, Templates &amp; Pages?', __FILE__);
 		$field->description = __('Select this and hit submit to setup the fields, templates and pages.', __FILE__);
-		$field->notes = __("Selecting this and submitting will initiate an automated process that will create the template_select field, help-index template, help-doc template, and if there is no help docs root specified, a Help Docs index page, and a sample Help Page for basic page. Use with caution as this has only had limited testing.");
+		$field->notes = __("Selecting this and submitting will initiate an automated process that will create the template_select field, help-index template, help-doc template, and if there is no help docs root specified, a Help Docs index page, and a sample Help Page for basic page. Note: You must install FieldtypeTemplates to auto-create the template select field.");
 		$field->showIf = "helpTpl|helpTplIndex=''";
-		$field->value = (isset($data['setupYN'])) ? $data['setupYN'] : 1;
+		if( !isset($data['setupYN']) || $data['setupYN'] == '')  {
+			$field->value = '';
+		} else {
+			$field->value = 1;
+		}
+
         $field->checked = ($field->value == 1) ? 'checked' : '';
 
 		$wrapper->add($field);
