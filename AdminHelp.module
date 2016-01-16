@@ -21,7 +21,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Setup',
 			'summary'  => 'Main module for managing setup of admin help pages',
-			'version'  => 100,
+			'version'  => 101,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'icon'	   => 'life-ring'
@@ -101,6 +101,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 
 			//save new template with fields and settings now added
 			$t->save();
+			$this->log->save( self::LOG_FILENAME_ACTIVITY , 'help-index template created');
 
 			// tell the module to use this template as the index.
 			$data['helpTplIndex'] = $t->name;
@@ -148,6 +149,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 			$t->noChildren = 1; // keep this only 1 level deep for now...
 
 			$t->save();
+			$this->log->save( self::LOG_FILENAME_ACTIVITY , 'help-doc template created');
 
 			// tell the module to use this template for the help doc.
 			$data['helpTpl'] = $t->name;
