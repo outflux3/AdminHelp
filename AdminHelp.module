@@ -41,7 +41,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 	 */
 	public function __construct() {
 		$configData = $this->modules->getModuleConfigData($this);
-		$this->setupYN = $configData['setupYN'];
+		$this->setupYN = (!empty($configData['setupYN']) ? $configData['setupYN'] : "");
 	}
 
 	/**
