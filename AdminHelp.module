@@ -21,7 +21,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Setup',
 			'summary'  => 'Main module for managing setup of admin help pages',
-			'version'  => 101,
+			'version'  => 102,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'icon'	   => 'life-ring'
