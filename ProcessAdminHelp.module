@@ -23,11 +23,12 @@ class ProcessAdminHelp extends Process {
 		return array(
 			'title' => 'Admin Help Page',
 			'summary' => 'Shows documentation pages in a single accordion view.',
-			'version' => 100,
+			'version' => 101,
 			'author' => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'href' => 'http://modules.processwire.com/',
 			'permission' => 'page-edit',
-			'requires' => 'AdminHelp'
+			'requires' => 'AdminHelp',
+			'icon'	   => 'life-ring'
 		);
 	}
 

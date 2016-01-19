@@ -27,10 +27,11 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Tab',
 			'summary'  => 'Adds a tab to the editor with related documentation.',
-			'version'  => 100,
+			'version'  => 101,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
-			'requires' => array('AdminHelp', 'FieldtypeTemplates')
+			'requires' => array('AdminHelp', 'FieldtypeTemplates'),
+			'icon'	   => 'life-ring'
 		);
 	}
 
