@@ -75,7 +75,7 @@ class ProcessAdminHelp extends Process {
 
 		foreach($docsRoot->children as $doc) {
 
-			$out .= "<li>
+			$out .= "<li name='{$this->sanitizer->pageName($doc->title, true)}'>
 					<h3 class='cbp-nttrigger'><i class='fa fa-file-text-o'></i>&nbsp; {$doc->title}</h3>
 					<div class='help-doc cbp-ntcontent'>
 					{$doc->body}";
@@ -127,13 +127,6 @@ class ProcessAdminHelp extends Process {
 
 
 		$out .= '</div><!-- /docs -->';
-
-		$out .= "
-			<script>
-				$( function() {
-					$( '#cbp-ntaccordion' ).cbpNTAccordion();
-				});
-			</script>";
 
 		return $out;
 
