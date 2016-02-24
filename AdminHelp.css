@@ -149,3 +149,85 @@
 	float:right;
 	font-size:.95em;
 }
+
+
+
+/* ========================================================================
+   Component: Table
+ ========================================================================== */
+/*
+ * 1. Remove most spacing between table cells.
+ * 2. Block element behavior
+ * 3. Style
+ */
+.help-doc table {
+  /* 1 */
+  border-collapse: collapse;
+  border-spacing: 0;
+  /* 2 */
+  width: 100%;
+  /* 3 */
+  margin-bottom: 15px;
+}
+/*
+ * Add margin if adjacent element
+ */
+* + .help-doc table {
+  margin-top: 15px;
+}
+.help-doc table th,
+.help-doc table td {
+  padding: 8px 8px;
+  border-bottom: 1px solid #dddddd;
+}
+/*
+ * Set alignment
+ */
+.help-doc table th {
+  text-align: left;
+}
+.help-doc table td {
+  vertical-align: top;
+}
+.help-doc table thead th {
+  vertical-align: bottom;
+}
+/*
+ * Caption and footer
+ */
+.help-doc table caption,
+.help-doc table tfoot {
+  font-size: 12px;
+  font-style: italic;
+}
+.help-doc table caption {
+  text-align: left;
+  color: #999999;
+}
+/*
+ * Active State
+ */
+.help-doc table tbody tr.uk-active {
+  background: #f0f0f0;
+}
+/* Sub-modifier: `uk-table-middle`
+ ========================================================================== */
+.help-doc table-middle,
+.help-doc table-middle td {
+  vertical-align: middle !important;
+}
+/* Modifier: `uk-table-striped`
+ ========================================================================== */
+.help-doc table-striped tbody tr:nth-of-type(odd) {
+  background: #fafafa;
+}
+/* Modifier: `uk-table-condensed`
+ ========================================================================== */
+.help-doc table-condensed td {
+  padding: 4px 8px;
+}
+/* Modifier: `uk-table-hover`
+ ========================================================================== */
+.help-doc table-hover tbody tr:hover {
+  background: #f0f0f0;
+}
