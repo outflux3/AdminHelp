@@ -1,0 +1,19 @@
+.mfp-inline-holder .mfp-content {
+/* 	width: 90% !important; */
+	max-width: 800px;
+	margin: 40px auto;
+}
+
+.mfp-content li {
+	display: block !important;
+
+}
+
+#PageEditTabs li.offscreen {
+	position: absolute;
+	left: -999px;
+}
+
+#content .WireTabs #_ProcessPageEditHelpModal {
+  color: #5CC7B2;
+}

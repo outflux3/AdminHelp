@@ -27,7 +27,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Tab',
 			'summary'  => 'Adds a tab to the editor with related documentation.',
-			'version'  => 101,
+			'version'  => 102,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'requires' => array('AdminHelp', 'FieldtypeTemplates'),
@@ -42,6 +42,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	public function __construct() {
 		$this->mainClass = 'AdminHelp';
 		$this->enabledTemplates = array();
+		$this->parentConfig = $this->wire('modules')->getModuleConfigData($this->mainClass);
 	}
 
 	/**
@@ -78,6 +79,14 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		if(count($this->enabledTemplates) == 0 or
 		   in_array($this->editedPage->template->name, $this->enabledTemplates)) {
 			$this->addHookAfter('ProcessPageEdit::buildForm', $this, 'hookBuildForm');
+
+			if($this->parentConfig['use_modal']) {
+				$this->addHookAfter('ProcessPageEdit::getTabs', $this, 'addHelpLinkModal');
+				$this->modules->get('JqueryMagnific');
+				$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTabModal.css?v=' . time());
+				$this->config->scripts->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTabModal.js?v=' . time());
+			}
+
 		}
 	}
 
@@ -88,8 +97,8 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	public function hookBuildForm(HookEvent $event) {
 
 		// get the InputFieldForm object from the event (return value of buildForm())
-		$configData = $this->wire('modules')->getModuleConfigData($this->mainClass);
-		$savedPageID = (int) $configData['helpRoot'];
+		$savedPageID = (int) $this->parentConfig['helpRoot'];
+
 		$form = $event->return;
 
 		// create the tab
@@ -131,6 +140,23 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/' . $this->mainClass . '.css?v=' . time());
 
 	}
+
+
+	/**
+	 * Add Modal Help Link to Page Editor
+	 *
+	 */
+	public function addHelpLinkModal(HookEvent $event) {
+		$tabs = $event->return;
+		$event->replace = true;
+		$label = $this->_('Help');
+		$id = $this->className() . 'HelpModal';
+		$url = '#AdminHelpTabHelp';
+		$a = "<a id='_ProcessPageEditHelpModal' href='$url' title='Open help in modal'><i class='fa fa-life-ring'></i> $label</a>";
+		$tabs[$id] = $a;
+		$event->return = $tabs;
+	}
+
 
 
 	/**

@@ -21,7 +21,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Setup',
 			'summary'  => 'Main module for managing setup of admin help pages',
-			'version'  => 103,
+			'version'  => 104,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'icon'	   => 'life-ring'
@@ -291,6 +291,17 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 			$field->value = 1;
 		}
 
+        $field->checked = ($field->value == 1) ? 'checked' : '';
+
+		$wrapper->add($field);
+
+
+		// make a checkbox to specify use of modal
+		$field = wire('modules')->get('InputfieldCheckbox');
+		$field->attr('name', 'use_modal');
+		$field->label = __('Display help contents in modal?', __FILE__);
+		//$field->description = __('Choose this option to show help in modal.', __FILE__);
+        $field->value = (isset($data['use_modal'])) ? $data['use_modal'] : 1;
         $field->checked = ($field->value == 1) ? 'checked' : '';
 
 		$wrapper->add($field);
