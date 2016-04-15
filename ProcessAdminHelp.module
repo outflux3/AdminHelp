@@ -61,6 +61,8 @@ class ProcessAdminHelp extends Process {
 		$mainClass = 'AdminHelp';
 		$user = wire('user');
 		$config = wire('config');
+		$editButtonLabel = $this->_('Edit');
+		$addNewDoc = $this->_('Add New Doc');
 
 		$data = wire('modules')->getModuleConfigData($mainClass);
 		$docsRootID = (int) $data['helpRoot'];
@@ -83,7 +85,7 @@ class ProcessAdminHelp extends Process {
 			if($user->hasRole('superuser')) {
 				$out .=
 					"<div class='doc-edit'>
-						<a href='{$config->urls->admin}page/edit/?id={$doc->id}'><i class='fa fa-pencil'></i> Edit: {$doc->title}</a>
+						<a href='{$config->urls->admin}page/edit/?id={$doc->id}'><i class='fa fa-pencil'></i> {$editButtonLabel}: {$doc->title}</a>
 					</div>";
 			}
 
@@ -100,7 +102,7 @@ class ProcessAdminHelp extends Process {
 					if($user->hasRole('superuser')) {
 						$out .=
 						"<div class='doc-edit'>
-							<a href='{$config->urls->admin}page/edit/?id={$child->id}'><i class='fa fa-pencil'></i> Edit: {$child->title}</a>
+							<a href='{$config->urls->admin}page/edit/?id={$child->id}'><i class='fa fa-pencil'></i> {$editButtonLabel}: {$child->title}</a>
 						</div>";
 					}
 
@@ -120,7 +122,7 @@ class ProcessAdminHelp extends Process {
 			$out .= "<div style='float:right;font-size:13px;'>
 				<a href='{$config->urls->admin}page/add/?parent_id={$docsRootID}'>
 					<button class='ui-button ui-widget ui-corner-all head_button_clone ui-state-default' name='button' value='Add New' type='button'>
-					<span class='ui-button-text'><i class='fa fa-plus-circle'></i> Add New Doc</span></button>
+					<span class='ui-button-text'><i class='fa fa-plus-circle'></i> {$addNewDoc}</span></button>
 				</a>
 			</div>";
 		}
@@ -151,7 +153,8 @@ class ProcessAdminHelp extends Process {
 		$page->process = $this;
 
 		// we will make the page title the same as our module title
-		$page->title = 'Admin Help';
+		//$page->title = 'Admin Help';
+		$page->title = $this->_('Admin Help');
 
 		// save the page
 		$page->save();
