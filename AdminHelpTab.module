@@ -27,7 +27,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Tab',
 			'summary'  => 'Adds a tab to the editor with related documentation.',
-			'version'  => 102,
+			'version'  => 103,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'requires' => array('AdminHelp', 'FieldtypeTemplates'),
@@ -107,10 +107,9 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$docTab->attr('title', $this->_('Help'));
 		$field = $this->modules->get("InputfieldMarkup");
 
-		$docs = wire('pages')->find("has_parent=$savedPageID, template_select={$this->editedPage->template->id}");
+		$docs = wire('pages')->find("has_parent=$savedPageID, template_select={$this->editedPage->template->id}, sort=sort");
 
 		if(count($docs)) {
-			//$body = '';
 			$docLink = wire('config')->urls->admin . 'page/edit/?id=';
 			$body = '<div id="docs">';
 			foreach($docs as $doc) {
@@ -118,10 +117,24 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 				$body .= "<h1><i class='fa fa-file-text-o'></i> {$doc->title}";
 				$body .= " &nbsp;<span><a href='{$docLink}{$doc->id}' target='_blank' title='Edit'><i class='fa fa-pencil'></i></a></span></h1>";
 				$body .= $doc->body;
-
+				// Uncomment below to enable edit link:
 				//$body .= '<div class="doc-edit">';
 				//$body .= "<a href='{$docLink}{$doc->id}' target='_blank'><i class='fa fa-pencil'></i> Edit: {$doc->title}</a></div>";
-				//$body .= '</div>';
+				$body .= '</div>';
+
+				if($doc->children) {
+					foreach($doc->children as $childDoc) {
+						$body .= "<div id='doc{$childDoc->id}' class='help-doc'>";
+						$body .= "<h1><i class='fa fa-file-text-o'></i> {$childDoc->title}";
+						$body .= " &nbsp;<span><a href='{$docLink}{$childDoc->id}' target='_blank' title='Edit'><i class='fa fa-pencil'></i></a></span></h1>";
+						$body .= $childDoc->body;
+						// Uncomment below to enable edit link:
+						//$body .= '<div class="doc-edit">';
+						//$body .= "<a href='{$docLink}{$childDoc->id}' target='_blank'><i class='fa fa-pencil'></i> Edit: {$childDoc->title}</a></div>";
+						$body .= '</div>';
+					}
+				}
+
 			}
 			$body .= '</div>';
 			$field->markupText = $body;
