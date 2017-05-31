@@ -27,7 +27,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Tab',
 			'summary'  => 'Adds a tab to the editor with related documentation.',
-			'version'  => 103,
+			'version'  => 105,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'requires' => array('AdminHelp', 'FieldtypeTemplates'),
@@ -106,11 +106,13 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$docTab->attr('id', $this->className() . 'Help');
 		$docTab->attr('title', $this->_('Help'));
 		$field = $this->modules->get("InputfieldMarkup");
-
+		$intro = $this->modules->get("InputfieldMarkup");
+		$intro->attr('id+name', $this->className() . 'Intro');
 		$docs = wire('pages')->find("has_parent=$savedPageID, template_select={$this->editedPage->template->id}, sort=sort");
 
 		if(count($docs)) {
 			$docLink = wire('config')->urls->admin . 'page/edit/?id=';
+			$introMarkup = '';
 			$body = '<div id="docs">';
 			foreach($docs as $doc) {
 				$body .= "<div id='doc{$doc->id}' class='help-doc'>";
@@ -135,9 +137,15 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 					}
 				}
 
+				if($doc->help_header != '') {
+					$introMarkup .= $doc->help_header;
+				}
+
 			}
 			$body .= '</div>';
 			$field->markupText = $body;
+			$intro->markupText = $introMarkup;
+			$form->prepend($intro);
 		} else {
 			$docsAdd = wire('config')->urls->admin . 'page/add/?parent_id=' . $savedPageID;
 			$field->markupText = "<h2>No applicable help docs found</h2>";
@@ -151,6 +159,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$form->prepend($docTab);
 
 		$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/' . $this->mainClass . '.css?v=' . time());
+
 
 	}
 
