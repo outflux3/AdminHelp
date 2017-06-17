@@ -76,10 +76,16 @@ class ProcessAdminHelp extends Process {
 		$out ="<div id='help-container'><ul id='cbp-ntaccordion' class='cbp-ntaccordion'>";
 
 		foreach($docsRoot->children as $doc) {
+			$cls = ' cbp-ntcontent';
+
+			// only output the requested docs and show accordion content instantly
+			$docs = wire('input')->get('docs');
+			if($docs AND $docs != $doc->name) continue;
+			elseif($docs AND $docs == $doc->name) $cls = '';
 
 			$out .= "<li name='{$this->sanitizer->pageName($doc->title, true)}'>
 					<h3 class='cbp-nttrigger'><i class='fa fa-file-text-o'></i>&nbsp; {$doc->title}</h3>
-					<div class='help-doc cbp-ntcontent'>
+					<div class='help-doc".$cls."'>
 					{$doc->body}";
 
 			if($user->hasRole('superuser')) {
