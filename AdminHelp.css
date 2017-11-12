@@ -1,8 +1,17 @@
-#content .WireTabs #_AdminHelpTabHelp {
-  color: #5CC7B2;
-}
 
-#content .WireTabs #_AdminHelpTabHelp:before {
+/* ========================================================================
+   TABS STYLING
+ ========================================================================== */
+
+/*#content .WireTabs #_AdminHelpTabHelp {
+  color: #5CC7B2;
+}*/
+
+/*.AdminThemeUikit #content .WireTabs #_AdminHelpTabHelp {
+  margin-left: 20px;
+}*/
+
+/*#content .WireTabs #_AdminHelpTabHelp:before {
   display: inline-block;
   font: normal normal normal 14px/1 FontAwesome;
   font-size: inherit;
@@ -11,13 +20,21 @@
   -moz-osx-font-smoothing: grayscale;
   transform: translate(0, 0);
   content: "\f1cd\00a0 ";
-}
+}*/
 
-#content .WireTabs #_AdminHelpTabHelp:hover {
+/*#content .WireTabs #_AdminHelpTabHelp:hover {
   background: none;
   text-decoration: underline;
   border-color: transparent;
+}*/
+
+.ui-tooltip-content {
+  padding: 5px 10px;
 }
+
+/* ========================================================================
+
+ ========================================================================== */
 
 .help-doc {
 	padding-bottom: 20px;
@@ -30,14 +47,15 @@
 	padding-bottom: 0;
 }
 
-.help-doc ul,
+
+/* ========================================================================
+  TEXT FORMATTING
+ ========================================================================== */
+
+/*.help-doc ul,
 .help-doc ol {
     font-weight: 400 !important;
     margin: 0 0 20px 25px !important;
-}
-
-.help-doc ul li:before {
-	content: "\0BB \020";
 }
 
 .help-doc ul li,
@@ -47,7 +65,33 @@
 
 .help-doc ol li {
 	margin-left: 15px;
+}*/
+
+/** NEW */
+.help-doc ol {
+    list-style-type: decimal !important;
+    padding-left: 35px;
+    margin-bottom: 15px;
+
 }
+.help-doc ol li {
+    margin: .2em 0;
+    display: list-item !important;
+}
+
+.help-doc ul {
+    list-style-type: disc !important;
+    padding-left: 35px;
+    margin-bottom: 15px;
+
+}
+.help-doc ul li {
+    margin: .2em 0;
+    display: list-item !important;
+}
+/** /NEW */
+
+
 
 .help-doc strong {
 	font-weight: 700;
@@ -66,6 +110,7 @@
   color: #23527c;
   text-decoration: underline;
 }
+
 .help-doc a:focus {
   outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;

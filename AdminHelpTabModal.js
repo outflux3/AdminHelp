@@ -1,6 +1,9 @@
 $(document).ready(function() {
 
-	$('#_ProcessPageEditHelpModal').magnificPopup({
+	var helpModal = $('#_ProcessPageEditHelpModal');
+	var popWidth = helpModal.data('mfp-width');
+
+	helpModal.magnificPopup({
 		type: 'inline',
 		focus: '#name',
 		closeBtnInside: true,
@@ -12,10 +15,16 @@ $(document).ready(function() {
 				} else {
 					this.st.focus = '#name';
 				}
-			}
+			},
+			open: function() {
+    			if(popWidth) $('.mfp-inline-holder .mfp-content').css({'max-width': popWidth+'px'});
+  			},
 		}
 	});
 
+	helpModal.click(function(e) {
+		e.stopPropagation();
+	});
 
 	$('#PageEditTabs').find('a#_AdminHelpTabHelp').parent().addClass('offscreen');
 

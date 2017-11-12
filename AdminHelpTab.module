@@ -27,7 +27,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Tab',
 			'summary'  => 'Adds a tab to the editor with related documentation.',
-			'version'  => 106,
+			'version'  => 107,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'requires' => array('AdminHelp', 'FieldtypeTemplates'),
@@ -43,6 +43,11 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$this->mainClass = 'AdminHelp';
 		$this->enabledTemplates = array();
 		$this->parentConfig = $this->wire('modules')->getModuleConfigData($this->mainClass);
+
+		$this->tab_title 	= ''; // Help
+		$this->tab_icon 	= ''; // life-ring
+		$this->tab_color	= ''; // #5CC7B2
+		$this->modal_width 	= ''; // 900px
 	}
 
 	/**
@@ -78,6 +83,8 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		// 2) the template of the edited page has been chosen
 		if(count($this->enabledTemplates) == 0 or
 		   in_array($this->editedPage->template->name, $this->enabledTemplates)) {
+
+			// add the content as a tab
 			$this->addHookAfter('ProcessPageEdit::buildForm', $this, 'hookBuildForm');
 
 			if($this->parentConfig['use_modal']) {
@@ -85,6 +92,8 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 				$this->modules->get('JqueryMagnific');
 				$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTabModal.css?v=' . time());
 				$this->config->scripts->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTabModal.js?v=' . time());
+			} else {
+				$this->config->scripts->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTab.js?v=' . time());
 			}
 
 		}
@@ -104,10 +113,23 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		// create the tab
 		$docTab = new InputfieldWrapper();
 		$docTab->attr('id', $this->className() . 'Help');
-		$docTab->attr('title', $this->_('Help'));
+
+		// configure title/icon
+		//$docTab->attr('title', $this->_('Help'));
+		$icon = $this->tab_icon ? "<i class='fa fa-{$this->tab_icon}'></i> " : "<i class='fa fa-life-ring'></i> ";
+		$label = $this->tab_title ?: $this->_('Help');
+		$color = $this->tab_color ?: '5CC7B2';
+		$docTab->attr('title', $icon . $label);
+		$docTab->attr('data-color', $color);
+
+		// tab content
 		$field = $this->modules->get("InputfieldMarkup");
+
+		// tab intro
 		$intro = $this->modules->get("InputfieldMarkup");
 		$intro->attr('id+name', $this->className() . 'Intro');
+
+		// find docs
 		$docs = wire('pages')->find("has_parent=$savedPageID, template_select={$this->editedPage->template->id}, sort=sort");
 
 		if(count($docs)) {
@@ -144,8 +166,13 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 			}
 			$body .= '</div>';
 			$field->markupText = $body;
-			$intro->markupText = $introMarkup;
-			$form->prepend($intro);
+
+			// custom intro - places at the beginning of the first tab content
+			if($introMarkup) {
+				$intro->markupText = $introMarkup;
+				$form->prepend($intro);
+			}
+
 		} else {
 			$docsAdd = wire('config')->urls->admin . 'page/add/?parent_id=' . $savedPageID;
 			$field->markupText = "<h2>No applicable help docs found</h2>";
@@ -171,10 +198,18 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	public function addHelpLinkModal(HookEvent $event) {
 		$tabs = $event->return;
 		$event->replace = true;
-		$label = $this->_('Help');
+
+		// SETTINGS
+		$icon = $this->tab_icon ? "<i class='fa fa-{$this->tab_icon}'></i> " : "<i class='fa fa-life-ring'></i> ";
+		$label = $this->tab_title ?: $this->_('Help');
+		$style = $this->tab_color ? " style='color:#{$this->tab_color}'" : '';
+		$width = $this->modal_width ? " data-mfp-width='{$this->modal_width}'" : '';
+
+
 		$id = $this->className() . 'HelpModal';
 		$url = '#AdminHelpTabHelp';
-		$a = "<a id='_ProcessPageEditHelpModal' href='$url' title='Open help in modal'><i class='fa fa-life-ring'></i> $label</a>";
+
+		$a = "<a id='_ProcessPageEditHelpModal' href='$url' title='Open help in modal'{$style}{$width}>{$icon}{$label}</a>";
 		$tabs[$id] = $a;
 		$event->return = $tabs;
 	}
@@ -189,7 +224,10 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 	 *
 	 */
 	public static function getModuleConfigInputfields(array $data) {
+
 		$wrapper = new InputfieldWrapper();
+
+		// ---- ENABLED TEMPLATES ---- //
 
 		$fieldEnabledTemplates = wire('modules')->get('InputfieldAsmSelect');
 		$fieldEnabledTemplates->attr('name+id', 'enabledTemplates');
@@ -206,6 +244,53 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		if(isset($data['enabledTemplates'])) $fieldEnabledTemplates->value = $data['enabledTemplates'];
 
 		$wrapper->add($fieldEnabledTemplates);
+
+
+		// ---- TAB TITLE ---- //
+
+		$f = wire('modules')->get('InputfieldText');
+		$f->attr('name', 'tab_title');
+		$f->attr('value', $data['tab_title']);
+		$f->attr('size', 20);
+		$f->attr('maxlength', 21);
+		$f->attr('placeholder', 'Help');
+		$f->label = __('Help Tab Title');
+		$f->description = __('You can override the tab title.');
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+
+		// ---- TAB ICON ---- //
+
+		$f = wire('modules')->get('InputfieldText');
+		$f->attr('name', 'tab_icon');
+		$f->attr('value', $data['tab_icon']); 
+		$f->attr('placeholder', 'life-ring');
+		$f->label = __('FontAwesome Icon Name');
+		$f->description = __('You can enter a valid FontAwesome icon to use next to the tab.'); 
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+
+
+		// ---- TAB COLOR ---- //
+		// @todo - check for color fieldtype?
+		$f = wire('modules')->get('InputfieldText');
+		$f->attr('name', 'tab_color');
+		$f->attr('value', $data['tab_color']); 
+		$f->attr('placeholder', '5CC7B2');
+		$f->label = __('Hex Color Value');
+		$f->description = __('The color to use for the tab text.'); 
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+
+		// ---- LIGHTBOX WIDTH ---- //
+		$f = wire('modules')->get('InputfieldInteger');
+		$f->attr('name', 'modal_width');
+		$f->attr('value', $data['modal_width']);
+		$f->label = __('Popup Max Width');
+		$f->description = __('Max width in px for the lightbox content. Leave blank for full width.'); 
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+
 
 		return $wrapper;
 	}
