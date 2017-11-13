@@ -35,6 +35,18 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		);
 	}
 
+
+	protected static $configDefaults = array(
+		'tab_title' 	=> '', // default Help
+		'tab_icon'		=> '', // default life-ring
+		'tab_color'		=> '',
+		'use_modal' 	=> 0,
+		'modal_width' 	=> '',
+		'no_icon'		=> 0,
+	);
+
+
+
 	/**
 	 * __construct() is the right place to init config vars before they'll get populated
 	 *
@@ -44,20 +56,11 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$this->enabledTemplates = array();
 		$this->parentConfig = $this->wire('modules')->getModuleConfigData($this->mainClass);
 
-		$this->tab_title 	= ''; // Help
-		$this->tab_icon 	= ''; // life-ring
-		$this->tab_color	= ''; // #5CC7B2
-		$this->use_modal 	= 0; // false
-		$this->modal_width 	= ''; // 900px
+		foreach(self::$configDefaults as $key => $value) {
+			$this->set($key, $value); 
+		}
 	}
 
-	/**
-	 * init() is called when PW's API is ready
-	 *
-	 */
-	public function init() {
-
-	}
 
 	/**
 	 * ready() is called when both PW's API is ready and $page object is initialized (for autoload modules!)
@@ -121,6 +124,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		// configure title/icon
 		//$docTab->attr('title', $this->_('Help'));
 		$icon = $this->tab_icon ? "<i class='fa fa-{$this->tab_icon}'></i> " : "<i class='fa fa-life-ring'></i> ";
+		if($this->no_icon) $icon = '';
 		$label = $this->tab_title ?: $this->_('Help');
 		$color = $this->tab_color ?: '5CC7B2';
 		$docTab->attr('title', $icon . $label);
@@ -205,8 +209,9 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 
 		// SETTINGS
 		$icon = $this->tab_icon ? "<i class='fa fa-{$this->tab_icon}'></i> " : "<i class='fa fa-life-ring'></i> ";
+		if($this->no_icon) $icon = '';
 		$label = $this->tab_title ?: $this->_('Help');
-		$style = $this->tab_color ? " style='color:#{$this->tab_color}'" : '';
+		$style = $this->tab_color ? " style='color:#{$this->tab_color}'" : " style='color:#5CC7B2'";
 		$width = $this->modal_width ? " data-mfp-width='{$this->modal_width}'" : '';
 
 		$id = $this->className() . 'HelpModal';
@@ -250,7 +255,6 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 
 
 		// ---- TAB TITLE ---- //
-
 		$f = wire('modules')->get('InputfieldText');
 		$f->attr('name', 'tab_title');
 		$f->attr('value', $data['tab_title']);
@@ -262,8 +266,18 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$f->columnWidth = 50;
 		$wrapper->add($f);
 
-		// ---- TAB ICON ---- //
+		// ---- TAB COLOR ---- //
+		// @todo - check for color fieldtype?
+		$f = wire('modules')->get('InputfieldText');
+		$f->attr('name', 'tab_color');
+		$f->attr('value', $data['tab_color']); 
+		$f->attr('placeholder', '5CC7B2');
+		$f->label = __('Hex Color Value');
+		$f->description = __('The color to use for the tab text.'); 
+		$f->columnWidth = 50;
+		$wrapper->add($f);
 
+		// ---- TAB ICON ---- //
 		$f = wire('modules')->get('InputfieldText');
 		$f->attr('name', 'tab_icon');
 		$f->attr('value', $data['tab_icon']); 
@@ -273,36 +287,33 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$f->columnWidth = 50;
 		$wrapper->add($f);
 
+		// ---- TAB ICON ---- //
+		$f = wire('modules')->get('InputfieldCheckbox'); 
+		$f->attr('name', 'no_icon');
+		$f->attr('value', 1); 
+		if($data['no_icon']) $f->attr('checked', 'checked'); 
+		$f->label = __('Disable Tab Icon');
+		$f->description = __('By befault an icon is shown. Check this box to disable the display of the icon.');
+		$f->columnWidth = 50;
+		$wrapper->add($f); 
 
-		// ---- TAB COLOR ---- //
-		// @todo - check for color fieldtype?
-		$f = wire('modules')->get('InputfieldText');
-		$f->attr('name', 'tab_color');
-		$f->attr('value', $data['tab_color']); 
-		$f->attr('placeholder', '5CC7B2');
-		$f->label = __('Hex Color Value');
-		$f->description = __('The color to use for the tab text.'); 
-		//$f->columnWidth = 50;
-		$wrapper->add($f);
-
-
-		// make a checkbox to specify use of modal
+		// ---- TAB IN POPUP ---- //
 		$f = wire('modules')->get('InputfieldCheckbox');
 		$f->attr('name', 'use_modal');
-		$f->label = __('Display help contents in lightbox?', __FILE__);
-		$f->notes = __('This will show help in a lightbox instead of inside tab content.', __FILE__);
+		$f->label2 = 'Pop It Up!';
+		$f->label = __('Display Help in Popup?', __FILE__);
+		$f->description = __('Check to show help in a popup (lightbox) instead of inside tab content.', __FILE__);
 		$f->value = (isset($data['use_modal'])) ? $data['use_modal'] : 1;
 		$f->checked = ($f->value == 1) ? 'checked' : '';
 		$f->columnWidth = 50;
 		$wrapper->add($f);
 
-
-		// ---- LIGHTBOX WIDTH ---- //
+		// ---- POPUP WIDTH ---- //
 		$f = wire('modules')->get('InputfieldInteger');
 		$f->attr('name', 'modal_width');
 		$f->attr('value', $data['modal_width']);
 		$f->label = __('Popup Max Width');
-		$f->description = __('Max width in px for the lightbox content. Leave blank for full width.'); 
+		$f->description = __('Max width in px for the popup/lightbox content. Leave blank for full width.'); 
 		$f->columnWidth = 50;
 		$wrapper->add($f);
 
