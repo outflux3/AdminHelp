@@ -47,6 +47,7 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$this->tab_title 	= ''; // Help
 		$this->tab_icon 	= ''; // life-ring
 		$this->tab_color	= ''; // #5CC7B2
+		$this->use_modal 	= 0; // false
 		$this->modal_width 	= ''; // 900px
 	}
 
@@ -87,7 +88,10 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 			// add the content as a tab
 			$this->addHookAfter('ProcessPageEdit::buildForm', $this, 'hookBuildForm');
 
-			if($this->parentConfig['use_modal']) {
+			// legacy - prev version had the setting on main module
+			//if($this->parentConfig['use_modal']) $this->use_modal == 1;
+
+			if($this->use_modal) {
 				$this->addHookAfter('ProcessPageEdit::getTabs', $this, 'addHelpLinkModal');
 				$this->modules->get('JqueryMagnific');
 				$this->config->styles->add($this->config->urls->siteModules . $this->mainClass . '/AdminHelpTabModal.css?v=' . time());
@@ -205,7 +209,6 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$style = $this->tab_color ? " style='color:#{$this->tab_color}'" : '';
 		$width = $this->modal_width ? " data-mfp-width='{$this->modal_width}'" : '';
 
-
 		$id = $this->className() . 'HelpModal';
 		$url = '#AdminHelpTabHelp';
 
@@ -279,8 +282,20 @@ class AdminHelpTab extends WireData implements Module, ConfigurableModule {
 		$f->attr('placeholder', '5CC7B2');
 		$f->label = __('Hex Color Value');
 		$f->description = __('The color to use for the tab text.'); 
+		//$f->columnWidth = 50;
+		$wrapper->add($f);
+
+
+		// make a checkbox to specify use of modal
+		$f = wire('modules')->get('InputfieldCheckbox');
+		$f->attr('name', 'use_modal');
+		$f->label = __('Display help contents in lightbox?', __FILE__);
+		$f->notes = __('This will show help in a lightbox instead of inside tab content.', __FILE__);
+		$f->value = (isset($data['use_modal'])) ? $data['use_modal'] : 1;
+		$f->checked = ($f->value == 1) ? 'checked' : '';
 		$f->columnWidth = 50;
 		$wrapper->add($f);
+
 
 		// ---- LIGHTBOX WIDTH ---- //
 		$f = wire('modules')->get('InputfieldInteger');

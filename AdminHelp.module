@@ -301,8 +301,8 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		// make a checkbox to specify use of modal
 		$field = wire('modules')->get('InputfieldCheckbox');
 		$field->attr('name', 'use_modal');
-		$field->label = __('Display help contents in lightbox?', __FILE__);
-		$field->notes = __('This will show help in a lightbox instead of inside tab content.', __FILE__);
+		$field->label = __('** This setting is now on the Help Tab Module Config ** ', __FILE__);
+		$field->notes = __('This setting has no effect - it is here for backwards compatibility - please set this on the other module config.', __FILE__);
         $field->value = (isset($data['use_modal'])) ? $data['use_modal'] : 1;
         $field->checked = ($field->value == 1) ? 'checked' : '';
 

@@ -28,6 +28,12 @@
   border-color: transparent;
 }*/
 
+.AdminThemeDefault #content .WireTabs #_AdminHelpTabHelp:hover,
+.AdminThemeDefault #content .WireTabs #_ProcessPageEditHelpModal:hover  {
+  color: #fff !important;
+}
+
+
 .ui-tooltip-content {
   padding: 5px 10px;
 }
@@ -52,21 +58,6 @@
   TEXT FORMATTING
  ========================================================================== */
 
-/*.help-doc ul,
-.help-doc ol {
-    font-weight: 400 !important;
-    margin: 0 0 20px 25px !important;
-}
-
-.help-doc ul li,
-.help-doc ol li {
-	margin: 0 0 2px 0;
-}
-
-.help-doc ol li {
-	margin-left: 15px;
-}*/
-
 /** NEW */
 .help-doc ol {
     list-style-type: decimal !important;
@@ -90,7 +81,6 @@
     display: list-item !important;
 }
 /** /NEW */
-
 
 
 .help-doc strong {
