@@ -21,7 +21,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Setup',
 			'summary'  => 'Main module for managing setup of admin help pages',
-			'version'  => 107,
+			'version'  => 108,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'icon'	   => 'life-ring'
@@ -225,10 +225,17 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 	 */
 	public static function getModuleConfigInputfields(array $data) {
 
-		// you can use this other method to build the form which is not staic
-		//return wire('modules')->get(__CLASS__)->getForm();
-
 		$wrapper = new InputfieldWrapper();
+
+		/* INSTRUCTIONS
+		------------------------------------------------------------------------ */
+		$f = wire('modules')->get('InputfieldMarkup');
+		$f->name  = 'instructions';
+		$f->label = __('Instructions', __FILE__);
+		$text = wireRenderFile(__DIR__ .  '/instructions.php');
+		$f->markupText = __($text, __FILE__);
+		$wrapper->add($f); 
+
 
 		// Select the help index template --------------------------------------------------
 		$field = wire('modules')->get('InputfieldSelect');
@@ -286,7 +293,8 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		$field->label = __('Setup Fields, Templates &amp; Pages?', __FILE__);
 		$field->description = __('Select this and hit submit to setup the fields, templates and pages.', __FILE__);
 		$field->notes = __("Selecting this and submitting will initiate an automated process that will create the template_select field, help-index template, help-doc template, and if there is no help docs root specified, a Help Docs index page, and a sample Help Page for basic page. Note: You must install FieldtypeTemplates to auto-create the template select field.");
-		$field->showIf = "helpTpl|helpTplIndex=''";
+		$field->collapsed = 1;
+		//$field->showIf = "helpTpl|helpTplIndex=''";
 		if( !isset($data['setupYN']) || $data['setupYN'] == '')  {
 			$field->value = '';
 		} else {
@@ -305,7 +313,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		$field->notes = __('This setting has no effect - it is here for backwards compatibility - please set this on the other module config.', __FILE__);
         $field->value = (isset($data['use_modal'])) ? $data['use_modal'] : 1;
         $field->checked = ($field->value == 1) ? 'checked' : '';
-
+        $field->collapsed = 1;
 		$wrapper->add($field);
 
 
