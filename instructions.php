@@ -26,6 +26,17 @@
 	font-style: italic;
 }
 
+.module-instructions ul {
+    list-style-type: disc !important;
+    padding-left: 35px;
+    margin-bottom: 15px;
+}
+
+.module-instructions ul li {
+    margin: .2em 0;
+    display: list-item !important;
+}
+
 </style>
 
 <div class="module-instructions">
@@ -67,4 +78,16 @@
 	You should create your help docs in any way you need to, using images or any other features (lists, tables, image captions, strong, emphasis etc.). The module's CSS file should provide the CSS required to make those elements look correct within the boundaries of the help doc's div. If you find some markup does not look correct, please report it so that the CSS can be adjusted.
 </p>
 
+<h3>Additional Help and Resources</h3>
+
+<p>If you have any additional questions, comments or issues, please submit an issue on Github, or use the PW forum.</p>
+
+<ul>
+	<li>Github Repository: <a href="https://github.com/outflux3/AdminHelp" target="_blank">https://github.com/outflux3/AdminHelp</a></li>
+	<li>Processwire Forum Thread: <a href="https://processwire.com/talk/topic/11817-module-adminhelp/" target="_blank">https://processwire.com/talk/topic/11817-module-adminhelp/</a></li>
+</ul>
+
 </div>
+
+
+
