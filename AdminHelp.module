@@ -21,7 +21,7 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		return array(
 			'title'    => 'Admin Help Setup',
 			'summary'  => 'Main module for managing setup of admin help pages',
-			'version'  => 108,
+			'version'  => 109,
 			'author'   => 'Marc W. | @Macrura(community), @outflux3 (Github), http://nibiri.com',
 			'autoload' => true,
 			'icon'	   => 'life-ring'
@@ -232,8 +232,9 @@ class AdminHelp extends WireData implements Module, ConfigurableModule {
 		$f = wire('modules')->get('InputfieldMarkup');
 		$f->name  = 'instructions';
 		$f->label = __('Instructions', __FILE__);
-		$text = wireRenderFile(__DIR__ .  '/instructions.php');
-		$f->markupText = __($text, __FILE__);
+		//$text = wireRenderFile(__DIR__ .  '/instructions.php');
+		//$f->markupText = __($text, __FILE__);
+		$f->markupText = wireRenderFile(__DIR__ .  '/instructions.php');
 		$wrapper->add($f); 
 
 
